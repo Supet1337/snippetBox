@@ -2,24 +2,35 @@ package main
 
 import (
 	"fmt"
+	"html/template"
 	"log"
 	"net/http"
 	"strconv"
 )
 
-// Создается функция-обработчик "home", которая записывает байтовый слайс, содержащий
-// текст "Привет из Snippetbox" как тело ответа.
 func home(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path != "/" {
 		http.NotFound(w, r)
 		return
 	}
 
-	_, err := w.Write([]byte("Привет из Snippetbox"))
+	files := []string{
+		"./ui/html/index.html",
+		"./ui/html/base.html",
+		"./ui/html/footer.html",
+	}
 
+	templ, err := template.ParseFiles(files...)
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err.Error())
+		http.Error(w, "Internal Server Error", 500)
 		return
+	}
+
+	err = templ.Execute(w, nil)
+	if err != nil {
+		log.Println(err.Error())
+		http.Error(w, "Internal Server Error", 500)
 	}
 }
 
@@ -46,17 +57,4 @@ func createSnippet(w http.ResponseWriter, r *http.Request) {
 		log.Fatal(err)
 		return
 	}
-}
-
-func main() {
-
-	mux := http.NewServeMux()
-	mux.HandleFunc("/", home)
-	mux.HandleFunc("/snippet", showSnippet) //localhost/snippet?id=123.
-	mux.HandleFunc("/snippet/create", createSnippet)
-
-	log.Println("Запуск веб-сервера на http://127.0.0.1:4000")
-	err := http.ListenAndServe(":4000", mux)
-	log.Fatal(err)
-
 }

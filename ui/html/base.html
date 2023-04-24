@@ -1,0 +1,20 @@
+{{define "base"}}
+<html lang='ru'>
+    <head>
+        <meta charset='utf-8'>
+        <title>{{template "title" .}} - Snippetbox</title>
+    </head>
+    <body>
+        <header>
+            <h1><a href='/'>Snippetbox</a></h1>
+        </header>
+        <nav>
+            <a href='/'>Домашняя страница</a>
+        </nav>
+        <main>
+            {{template "main" .}}
+        </main>
+        {{template "footer" .}}
+    </body>
+</html>
+{{end}}

@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/Supet1337/snippetBox/pkg/models"
-	//"html/template"
+	"html/template"
 	"net/http"
 	"strconv"
 )
@@ -63,7 +63,25 @@ func (app *application) showSnippet(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fmt.Fprintf(w, "%v", s)
+	data := &templateData{Snippet: s}
+
+	files := []string{
+		"./ui/html/snipet.html",
+		"./ui/html/base.html",
+		"./ui/html/footer.html",
+	}
+
+	ts, err := template.ParseFiles(files...)
+
+	if err != nil {
+		app.serverError(w, err)
+		return
+	}
+
+	err = ts.Execute(w, data)
+	if err != nil {
+		app.serverError(w, err)
+	}
 }
 
 func (app *application) createSnippet(w http.ResponseWriter, r *http.Request) {

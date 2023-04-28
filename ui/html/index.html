@@ -1,8 +1,25 @@
 {{template "base" .}}
 
-{{define "title"}}SnippetBox{{end}}
+{{define "title"}}Домашняя страница{{end}}
 
 {{define "main"}}
-<h2>Последние заметки</h2>
-<p>Пока здесь ничего нет!</p>
+<h2>Последние Заметки</h2>
+    {{if .Snippets}}
+        <table>
+            <tr>
+                <th>Заголовок</th>
+                <th>Создан</th>
+                <th>ID</th>
+            </tr>
+            {{ range $key, $snippet := .Snippets }}
+            <tr>
+                <td><a href='/snippet?id={{ $snippet.ID }}'>{{ $snippet.Title }}</a></td>
+                <td>{{ $snippet.Created }}</td>
+                <td>#{{ $snippet.ID }}</td>
+            </tr>
+            {{end}}
+        </table>
+    {{else}}
+    <p>Здесь ничего нет... пока что!</p>
+    {{end}}
 {{end}}

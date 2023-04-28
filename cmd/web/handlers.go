@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"github.com/Supet1337/snippetBox/pkg/models"
-	"html/template"
 	"net/http"
 	"strconv"
 )
@@ -21,7 +20,7 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	data := templateData{Snippets: snpts}
+	data := &templateData{Snippets: snpts}
 
 	files := []string{
 		"./ui/html/index.html",
@@ -29,18 +28,8 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 		"./ui/html/footer.html",
 	}
 
-	templ, err := template.ParseFiles(files...)
-	if err != nil {
-		app.errorLog.Println(err.Error())
-		app.serverError(w, err)
-		return
-	}
+	app.render(w, r, files, data)
 
-	err = templ.Execute(w, data)
-	if err != nil {
-		app.errorLog.Println(err.Error())
-		app.serverError(w, err)
-	}
 }
 
 func (app *application) showSnippet(w http.ResponseWriter, r *http.Request) {
@@ -69,17 +58,8 @@ func (app *application) showSnippet(w http.ResponseWriter, r *http.Request) {
 		"./ui/html/footer.html",
 	}
 
-	ts, err := template.ParseFiles(files...)
+	app.render(w, r, files, data)
 
-	if err != nil {
-		app.serverError(w, err)
-		return
-	}
-
-	err = ts.Execute(w, data)
-	if err != nil {
-		app.serverError(w, err)
-	}
 }
 
 func (app *application) createSnippet(w http.ResponseWriter, r *http.Request) {

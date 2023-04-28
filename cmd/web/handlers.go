@@ -1,8 +1,10 @@
 package main
 
 import (
+	"errors"
 	"fmt"
-	"html/template"
+	"github.com/Supet1337/snippetBox/pkg/models"
+	//"html/template"
 	"net/http"
 	"strconv"
 )
@@ -13,24 +15,34 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	files := []string{
-		"./ui/html/index.html",
-		"./ui/html/base.html",
-		"./ui/html/footer.html",
-	}
-
-	templ, err := template.ParseFiles(files...)
+	snpts, err := app.snippets.Latest()
 	if err != nil {
-		app.errorLog.Println(err.Error())
 		app.serverError(w, err)
 		return
 	}
 
-	err = templ.Execute(w, nil)
-	if err != nil {
-		app.errorLog.Println(err.Error())
-		app.serverError(w, err)
+	for _, snippet := range snpts {
+		fmt.Fprintf(w, "%v\n", snippet)
 	}
+
+	//files := []string{
+	//	"./ui/html/index.html",
+	//	"./ui/html/base.html",
+	//	"./ui/html/footer.html",
+	//}
+	//
+	//templ, err := template.ParseFiles(files...)
+	//if err != nil {
+	//	app.errorLog.Println(err.Error())
+	//	app.serverError(w, err)
+	//	return
+	//}
+	//
+	//err = templ.Execute(w, nil)
+	//if err != nil {
+	//	app.errorLog.Println(err.Error())
+	//	app.serverError(w, err)
+	//}
 }
 
 func (app *application) showSnippet(w http.ResponseWriter, r *http.Request) {
@@ -41,7 +53,17 @@ func (app *application) showSnippet(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fmt.Fprintf(w, "Отображение выбранной заметки с ID %d...", id)
+	s, err := app.snippets.Get(id)
+	if err != nil {
+		if errors.Is(err, models.ErrNoRecord) {
+			app.notFound(w)
+		} else {
+			app.serverError(w, err)
+		}
+		return
+	}
+
+	fmt.Fprintf(w, "%v", s)
 }
 
 func (app *application) createSnippet(w http.ResponseWriter, r *http.Request) {
@@ -51,9 +73,16 @@ func (app *application) createSnippet(w http.ResponseWriter, r *http.Request) {
 		app.clientError(w, http.StatusMethodNotAllowed)
 		return
 	}
-	_, err := w.Write([]byte("Создание заметки"))
+
+	title := "История про улитку"
+	content := "Улитка выползла из раковины,\nвытянула рожки,\nи опять подобрала их."
+	expires := "7"
+
+	id, err := app.snippets.Insert(title, content, expires)
 	if err != nil {
-		app.errorLog.Println(err.Error())
+		app.serverError(w, err)
 		return
 	}
+
+	http.Redirect(w, r, fmt.Sprintf("/snippet?id=%d", id), http.StatusSeeOther)
 }

@@ -6,6 +6,7 @@ import (
 	"github.com/Supet1337/snippetBox/pkg/models"
 	"net/http"
 	"strconv"
+	"time"
 )
 
 func (app *application) home(w http.ResponseWriter, r *http.Request) {
@@ -20,8 +21,7 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	data := &templateData{Snippets: snpts}
-
+	data := &templateData{Snippets: snpts, Time: time.Now()}
 	files := []string{
 		"./ui/html/index.html",
 		"./ui/html/base.html",

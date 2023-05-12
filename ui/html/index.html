@@ -3,7 +3,11 @@
 {{define "title"}}Домашняя страница{{end}}
 
 {{define "main"}}
-<h2>Последние Заметки</h2>
+<h2>Заметки</h2>
+<br>
+<h1>Актуальные:</h1>
+<br>
+    {{ $timeNow := .Time }}
     {{if .Snippets}}
         <table>
             <tr>
@@ -11,12 +15,35 @@
                 <th>Создан</th>
                 <th>ID</th>
             </tr>
+
             {{ range $key, $snippet := .Snippets }}
+                {{if $snippet.Expires.After $timeNow}}
+                    <tr>
+                        <td><a href='/snippet?id={{ $snippet.ID }}'>{{ $snippet.Title }}</a></td>
+                        <td>{{ $snippet.Created.Format "02 January 2006 15:04:05" }}</td>
+                        <td>#{{ $snippet.ID }}</td>
+                    </tr>
+                {{end}}
+            {{end}}
+        </table>
+<br>
+<h1>Истёкшие:</h1>
+<br>
+        <table>
             <tr>
-                <td><a href='/snippet?id={{ $snippet.ID }}'>{{ $snippet.Title }}</a></td>
-                <td>{{ $snippet.Created }}</td>
-                <td>#{{ $snippet.ID }}</td>
+                <th>Заголовок</th>
+                <th>Создан</th>
+                <th>ID</th>
             </tr>
+
+            {{ range $key, $snippet := .Snippets }}
+                {{if $snippet.Expires.Before $timeNow}}
+                    <tr>
+                        <td><a style="color: #6A6C6F" href='/snippet?id={{ $snippet.ID }}'>{{ $snippet.Title }}</a></td>
+                        <td>{{ $snippet.Created.Format "02 January 2006 15:04:05" }}</td>
+                        <td>#{{ $snippet.ID }}</td>
+                    </tr>
+                {{end}}
             {{end}}
         </table>
     {{else}}

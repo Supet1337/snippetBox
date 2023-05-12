@@ -1,9 +1,9 @@
 package main
 
 //TODO Create snippet brom https body (unmarshall/marshal)
-// Edit date in snipet showing (......UTC 0000 ->  2023/04/28 19:37:35)
 // Add edit, delete handler
 // search
+// add docker
 import (
 	"database/sql"
 	"flag"
